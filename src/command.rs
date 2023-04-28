@@ -1,10 +1,15 @@
+pub enum OutType{
+    Char,
+    Number,
+    None,
+}
 pub enum Command{
     Add,
     Mul,
     Sub,
     Div,
     Rem,
-    Pop,
+    Pop(OutType),
     Push(i32),
     Dup,
     Swap,
