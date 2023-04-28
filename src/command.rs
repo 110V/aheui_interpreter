@@ -1,0 +1,17 @@
+pub enum Command{
+    Add,
+    Mul,
+    Sub,
+    Div,
+    Rem,
+    Pop,
+    Push(i32),
+    Dup,
+    Swap,
+    Set(i32),
+    Move,
+    Comp,
+    If,
+    Quit,
+    None,
+}
