@@ -1,6 +1,6 @@
-pub mod memory;
-pub mod stack;
-pub mod queue;
+mod memory;
+mod stack;
+mod queue;
 
 
 pub use memory::Memory;
