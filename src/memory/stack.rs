@@ -1,18 +1,18 @@
 use super::memory::Memory;
 
-pub struct Queue{
+pub struct Stack{
     stack: Vec<i32>
 }   
 
 
-impl Queue{
+impl Stack{
     pub fn new() -> Self{
         Self{
             stack: Vec::new()
         }
     }
 }
-impl Memory for Queue{
+impl Memory for Stack{
     fn push(&mut self, data: i32){
         self.stack.push(data);
     }
