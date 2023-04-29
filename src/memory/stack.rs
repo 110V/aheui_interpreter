@@ -1,4 +1,4 @@
-use super::memory::Memory;
+use super::Memory;
 
 pub struct Stack{
     stack: Vec<i32>
