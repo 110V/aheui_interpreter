@@ -1,4 +1,5 @@
 use crate::instruction::Instruction;
+use crate::instruction_map::InstructionMap;
 use crate::memory::Memory;
 use crate::command::{Command, OutType};
 use crate::memory::{Queue,Stack};
@@ -10,10 +11,11 @@ struct executor{
     current_memory: usize,
     memories: Vec<Box<dyn Memory>>,
     output: String,
+    map: InstructionMap,
 }
 
 impl executor{
-    pub fn new() -> executor{
+    pub fn new(map:&str) -> executor{
         let mut memories: Vec<Box<dyn Memory>> = Vec::new();
         for _ in 0..26{
             memories.push(Box::new(Stack::new()));
@@ -22,7 +24,7 @@ impl executor{
         memories.push(Box::new(Stack::new()));
 
         let current_memory = 0;
-        executor{current_memory, memories,output:"".to_string()}
+        executor{current_memory, memories,output:"".to_string(), map}
     }
 
     pub fn get_current_memory(&mut self) -> &mut dyn Memory{

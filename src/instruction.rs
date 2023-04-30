@@ -1,7 +1,7 @@
 use crate::{Command, direction::Direction};
 
 
-struct Instruction{
+pub struct Instruction{
     command: Command,
     direction: Direction
 }
