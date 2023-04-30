@@ -1,16 +1,16 @@
-use crate::{Command, direction::Direction};
+use crate::{Command, movement::Movement};
 
 
 pub struct Instruction{
-    command: Command,
-    direction: Direction
+    pub command: Command,
+    pub movement: Movement
 }
 
 impl Instruction{
-    fn new(command: Command, direction: Direction) -> Self{
+    fn new(command: Command, movement: Movement) -> Self{
         Self{
             command,
-            direction
+            movement
         }
     }
 }
