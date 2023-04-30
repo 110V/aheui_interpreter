@@ -31,6 +31,20 @@ impl InstructionMap{
             data,
         }
     }
-
+    pub fn get(&self, x:usize, y:usize) -> Result<Option<char>,String>{
+        if x >= self.size.0 || y >= self.size.1{
+            return Err(format!("Instruction Map Out of range: ({},{})",x,y));
+        }
+        if self.data[y].len() <= x{
+            return Ok(None);
+        }
+        Ok(self.data[y][x])
+    }
+    pub fn get_width(&self) -> usize{
+        self.size.0
+    }
+    pub fn get_height(&self) -> usize{
+        self.size.1
+    }
 
 }
