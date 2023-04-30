@@ -1,5 +1,7 @@
+use crate::movement::{Direction, Movement};
 use crate::instruction::Instruction;
 use crate::instruction_map::InstructionMap;
+use crate::instruction_parser::InstructionParser;
 use crate::memory::Memory;
 use crate::command::{Command, OutType};
 use crate::memory::{Queue,Stack};
@@ -12,6 +14,9 @@ struct executor{
     memories: Vec<Box<dyn Memory>>,
     output: String,
     map: InstructionMap,
+    dir:Direction,
+    cursor:(usize,usize),
+    parser: InstructionParser,
 }
 
 impl executor{
@@ -24,9 +29,30 @@ impl executor{
         memories.push(Box::new(Stack::new()));
 
         let current_memory = 0;
-        executor{current_memory, memories,output:"".to_string(), map:InstructionMap::from_str(map)}
+        let dir = Direction::Down;
+        let cursor = (0,0);
+        let parser = InstructionParser::new();
+        executor{
+            current_memory,
+            memories,output:"".to_string(),
+            map:InstructionMap::from_str(map),
+            dir,
+            cursor,
+            parser,
+        }
     }
+    pub fn move_cursor(&mut self){
+        let (x,y) = self.cursor;
 
+        let mut _x = x as i32;
+        let mut _y = y as i32;
+
+        _x = _x % self.map.get_width() as i32;
+        _y = _y % self.map.get_height() as i32;
+
+        self.cursor = (_x as usize,_y as usize);
+    }
+   
     pub fn get_current_memory(&mut self) -> &mut dyn Memory{
         if self.current_memory >= self.memories.len(){
             panic!("Memory out of bounds");
@@ -44,9 +70,48 @@ impl executor{
         Ok(())
     }
 
+    pub fn set_dir(&mut self, dir:Direction){
+        if let Direction::None = dir{
+            return;
+        }
+        self.dir = dir;
+    }
 
-    pub fn run_instruction(instruction:Instruction)->CommandResult{
-        
+    pub fn flip_dir(&mut self){
+        let dir = &self.dir;
+        let new_dir = match dir{
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
+            Direction::None => Direction::None,
+        };
+        self.dir = new_dir;
+    }
+
+    pub fn run_current_instruction(&mut self){
+        // let instruction = self.map.get(self.cursor.0,self.cursor.1)?;
+        // if let Some(instruction) = instruction{
+        //     let instruction = self.parser.parse_instruction(instruction)?;
+        //     self.run_instruction(instruction)?;
+        // }
+    }
+
+    pub fn run_instruction(&mut self,instruction:Instruction)->CommandResult{
+        let command = instruction.command;
+        let movement = instruction.movement;
+        let mut distance = 1;
+
+        if let Movement::Move(dir,d) = movement{
+            self.set_dir(dir);
+            distance = d;
+        }
+
+        if let Err(_) = self.run_command(command){
+            self.flip_dir();
+        }
+
+        self.move_cursor();
         Ok(())
     }
 
