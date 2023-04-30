@@ -24,7 +24,7 @@ impl executor{
         memories.push(Box::new(Stack::new()));
 
         let current_memory = 0;
-        executor{current_memory, memories,output:"".to_string(), map}
+        executor{current_memory, memories,output:"".to_string(), map:InstructionMap::from_str(map)}
     }
 
     pub fn get_current_memory(&mut self) -> &mut dyn Memory{
