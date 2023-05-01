@@ -1,3 +1,5 @@
+use crate::{Command, instruction::Instruction, command::OutType};
+
 pub struct InstructionParser{
 
 }
@@ -10,6 +12,82 @@ impl InstructionParser{
     }
     pub fn check_instruction_range(&self,c:char)->bool{
         '가' <= c && c <= '힣' 
+    }
+
+    pub fn parse_instruction(&self,raw:char)->Instruction{
+        let (cho,jung,jong) = self.disassemble_raw(raw).unwrap();
+        let command = self.parse_command(cho,jung,jong);
+        let movement = self.parse_movement(cho,jung,jong);
+        Instruction{
+            command,
+            movement,
+        }
+    }
+
+    pub fn count_jong(&self,c:Option<char>)->i32{
+        if c.is_none(){
+            return 0;
+        }
+        match Ok(c){
+            'ㄱ'|'ㄴ'|'ㅅ'=>2,
+            'ㄷ'|'ㅈ'|'ㅋ'=>3,
+            'ㅁ'|'ㅂ'|'ㅊ'|'ㅌ'|'ㅍ'|'ㄲ'|'ㄳ'|'ㅆ' =>4,
+            'ㄹ'|'ㄵ'|'ㄶ' =>5,
+            'ㅄ' =>6,
+            'ㄺ'|'ㄽ' =>7,
+            'ㅀ' =>8,
+            'ㄻ'|'ㄼ'|'ㄾ'|'ㄿ' =>9,
+        }
+
+    }
+
+    pub fn parse_command(&self,cho:char,jong:Option<char>){
+        let mut command = Command::None;
+        match cho{
+            //셈
+            'ㄷ' => {
+                command = Command::Add;
+            }
+            'ㄸ' => {
+                command = Command::Sub;
+            }
+            'ㅌ' => {
+                command = Command::Mul;
+            }
+            'ㄴ' => {
+                command = Command::Div;
+            }
+            'ㄹ' => {
+                command = Command::Rem;
+            }
+
+            //저장공간
+            'ㅁ' => {
+                let mut out_type = OutType::None;
+                match jong{
+                    Some('ㅇ') => {
+                        out_type = OutType::Number;
+                    }
+                    Some('ㅎ') => {
+                        out_type = OutType::Char;
+                    }
+                    _ => {
+
+                    }
+                }
+                command = Command::Pop(out_type);
+            }
+            'ㅂ' => {
+                command = Command::Push;
+            }
+            'ㅃ' => {
+                command = Command::Dup;
+            }
+            'ㅍ' => {
+                command = Command::Swap;
+            }
+
+        }
     }
 
     pub fn disassemble_raw(&self,c:char)->Option<(char,char,Option<char>)>{
