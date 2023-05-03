@@ -24,4 +24,7 @@ impl Memory for Queue{
         }
         Some(queue.remove(0))
     }
+    fn len(&self) -> usize{
+        self.queue.len()
+    }
 }

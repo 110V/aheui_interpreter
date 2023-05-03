@@ -20,4 +20,7 @@ impl Memory for Stack{
     fn pop(&mut self) -> Option<i32>{
         self.stack.pop()
     }
+    fn len(&self) -> usize{
+        self.stack.len()
+    }
 }
