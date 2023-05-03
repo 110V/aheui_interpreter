@@ -27,7 +27,7 @@ pub enum Command{
     Dup,
     Swap,
     Set(usize),
-    Move,
+    Move(usize),
     Comp,
     If,
     Quit,
