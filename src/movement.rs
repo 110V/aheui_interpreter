@@ -1,3 +1,4 @@
+#[derive(PartialEq,Debug)]
 pub enum Direction{
     Up,
     Down,
@@ -5,7 +6,7 @@ pub enum Direction{
     Right,
     None,
 }
-
+#[derive(PartialEq,Debug)]
 pub enum Movement{
     Move(Direction,usize),
     VertLine,

@@ -1,4 +1,4 @@
-use crate::{Command, instruction::Instruction, command::OutType};
+use crate::{Command, instruction::Instruction, command::{IOType, PopType, PushType, self}, movement::{Movement, Direction}};
 
 pub struct InstructionParser{
 
@@ -16,11 +16,28 @@ impl InstructionParser{
 
     pub fn parse_instruction(&self,raw:char)->Instruction{
         let (cho,jung,jong) = self.disassemble_raw(raw).unwrap();
-        let command = self.parse_command(cho,jung,jong);
-        let movement = self.parse_movement(cho,jung,jong);
+        let command = self.parse_command(cho,jong);
+        let movement = self.parse_movement(jung);
+
         Instruction{
             command,
             movement,
+        }
+    }
+    pub fn parse_movement(&self,c:char)->Movement{
+        match c{
+            'ㅏ' => Movement::Move(Direction::Right,1),
+            'ㅓ' => Movement::Move(Direction::Left,1),
+            'ㅗ' => Movement::Move(Direction::Up,1),
+            'ㅜ' => Movement::Move(Direction::Down,1),
+            'ㅑ' => Movement::Move(Direction::Right,2),
+            'ㅕ' => Movement::Move(Direction::Left,2),
+            'ㅛ' => Movement::Move(Direction::Up,2),
+            'ㅠ' => Movement::Move(Direction::Down,2),
+            'ㅡ' => Movement::VertLine,
+            'ㅣ' => Movement::HorLine,
+            'ㅢ' => Movement::Bounce,
+            _ => Movement::Slip,
         }
     }
 
@@ -28,7 +45,8 @@ impl InstructionParser{
         if c.is_none(){
             return 0;
         }
-        match Ok(c){
+        
+        match c.unwrap(){
             'ㄱ'|'ㄴ'|'ㅅ'=>2,
             'ㄷ'|'ㅈ'|'ㅋ'=>3,
             'ㅁ'|'ㅂ'|'ㅊ'|'ㅌ'|'ㅍ'|'ㄲ'|'ㄳ'|'ㅆ' =>4,
@@ -37,56 +55,112 @@ impl InstructionParser{
             'ㄺ'|'ㄽ' =>7,
             'ㅀ' =>8,
             'ㄻ'|'ㄼ'|'ㄾ'|'ㄿ' =>9,
+            _=>unreachable!()
         }
 
     }
 
-    pub fn parse_command(&self,cho:char,jong:Option<char>){
-        let mut command = Command::None;
+    pub fn parse_memory_index(&self,c:Option<char>)->usize{
+        if c.is_none(){
+            return 0;
+        }
+        match c.unwrap(){
+            'ㄱ' => 1,
+            'ㄴ' => 2,
+            'ㄷ' => 3,
+            'ㄹ' => 4,
+            'ㅁ' => 5,
+            'ㅂ' => 6,
+            'ㅅ' => 7,
+            'ㅈ' => 8,
+            'ㅊ' => 9,
+            'ㅋ' => 10,
+            'ㅌ' => 11,
+            'ㅍ' => 12,
+            'ㄲ' => 13,
+            'ㄳ' => 14,
+            'ㄵ' => 15,
+            'ㄶ' => 16,
+            'ㄺ' => 17,
+            'ㄻ' => 18,
+            'ㄼ' => 19,
+            'ㄽ' => 20,
+            'ㄾ' => 21,
+            'ㄿ' => 22,
+            'ㅀ' => 23,
+            'ㅄ' => 24,
+            'ㅆ' => 25,
+            'ㅇ' => 26,
+            'ㅎ' => 27,
+            _ => unreachable!(),
+        }
+
+    }
+
+    pub fn parse_io_type(&self,c:Option<char>)->Option<IOType>{
+        if c.is_none(){
+            return None;
+        }
+        match c.unwrap(){
+            'ㅇ' => Some(IOType::Number),
+            'ㅎ' => Some(IOType::Char),
+            _ => None,
+        }
+    }
+
+    pub fn parse_command(&self,cho:char,jong:Option<char>)->Command{
         match cho{
             //셈
             'ㄷ' => {
-                command = Command::Add;
+                Command::Add
             }
             'ㄸ' => {
-                command = Command::Sub;
+                Command::Sub
             }
             'ㅌ' => {
-                command = Command::Mul;
+                Command::Mul
             }
             'ㄴ' => {
-                command = Command::Div;
+                Command::Div
             }
             'ㄹ' => {
-                command = Command::Rem;
+                Command::Rem
             }
 
             //저장공간
             'ㅁ' => {
-                let mut out_type = OutType::None;
-                match jong{
-                    Some('ㅇ') => {
-                        out_type = OutType::Number;
-                    }
-                    Some('ㅎ') => {
-                        out_type = OutType::Char;
-                    }
-                    _ => {
-
-                    }
+                let mut pop_type = PopType::Discard;
+                if let Some(io_type) = self.parse_io_type(jong){
+                    pop_type = PopType::Output(io_type);
                 }
-                command = Command::Pop(out_type);
+                Command::Pop(pop_type)
             }
             'ㅂ' => {
-                command = Command::Push;
+                if let Some(io_type) = self.parse_io_type(jong){
+                    return Command::Push(PushType::Input(io_type))
+                }
+                Command::Push(PushType::Value(self.count_jong(jong)))
             }
             'ㅃ' => {
-                command = Command::Dup;
+                Command::Dup
             }
             'ㅍ' => {
-                command = Command::Swap;
+                Command::Swap
             }
-
+            //제어, 저장공간 확장
+            'ㅅ' => {
+                Command::Set(self.parse_memory_index(jong))
+            }
+            'ㅆ' => {
+                Command::Move(self.parse_memory_index(jong))
+            }
+            'ㅈ' => {
+                Command::Comp
+            }
+            'ㅊ' => {
+                Command::If
+            }
+            _=>Command::None,
         }
     }
 
@@ -111,14 +185,6 @@ impl InstructionParser{
         }
         Some((chos[cho as usize],char::from_u32(jung)?, jong_char))
     }
-
-    pub fn parse_instruction(c:char){
-        
-    }
-
-
-
-
 }
 
 mod tests{
@@ -136,5 +202,39 @@ mod tests{
         assert_eq!(parser.disassemble_raw('a'),None);
         assert_eq!(parser.disassemble_raw('A'),None);
         assert_eq!(parser.disassemble_raw(' '),None);
+    }
+    #[test]
+    fn test_parse_command(){
+        use super::*;
+        use Command::*;
+        let parser: InstructionParser = InstructionParser::new();
+        let op_none = Option::None;
+        assert_eq!(parser.parse_command('ㄷ',op_none),Add);
+
+        assert_eq!(parser.parse_command('ㅁ',Some('ㅇ')),Pop(PopType::Output(IOType::Number)));
+        assert_eq!(parser.parse_command('ㅁ',Some('ㅎ')),Pop(PopType::Output(IOType::Char)));
+        
+        assert_eq!(parser.parse_command('ㅂ',Some('ㅇ')),Push(PushType::Input(IOType::Number)));
+        assert_eq!(parser.parse_command('ㅂ',Some('ㅎ')),Push(PushType::Input(IOType::Char)));
+        assert_eq!(parser.parse_command('ㅅ',Some('ㄴ')),Set(2));
+        assert_eq!(parser.parse_command('ㅆ',Some('ㅅ')),Move(7));
+        
+        assert_eq!(parser.parse_command('ㅁ',Some('ㅈ')),Pop(PopType::Discard));
+        assert_eq!(parser.parse_command('ㅂ',Some('ㅋ')),Push(PushType::Value(3)));
+        assert_eq!(parser.parse_command('ㅅ',Some('ㅌ')),Set(11));
+
+        assert_eq!(parser.parse_command('ㅁ',op_none),Pop(PopType::Discard));
+        assert_eq!(parser.parse_command('ㅂ',op_none),Push(PushType::Value(0)));
+        assert_eq!(parser.parse_command('ㅅ',op_none),Set(0));
+    }
+
+    #[test]
+    fn test_parse_instruction(){
+        use super::*;
+        use Command::*;
+        let parser: InstructionParser = InstructionParser::new();
+
+        assert_eq!(parser.parse_instruction('다'),Instruction::new(Add,Movement::Move(Direction::Right, 1)));
+        assert_eq!(parser.parse_instruction('송'),Instruction::new(Set(26),Movement::Move(Direction::Up, 1)));
     }
 }
