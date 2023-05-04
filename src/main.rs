@@ -17,7 +17,7 @@ r#"뷷우희어밍우여
 
 #[test]
 fn run_tests() {
-    let test_files = fs::read_dir("./tests/snippets/standard").unwrap();
+    let test_files = fs::read_dir("./tests/snippets/pi").unwrap();
 
     for test_file in test_files {
 
@@ -43,6 +43,6 @@ fn run_tests() {
         let output = executor.get_output();
         let expected_output = fs::read_to_string(&expected_output_file).unwrap();
 
-        assert_eq!(output, expected_output, "{} test failed", test_file_name);
+        assert_eq!(output, expected_output.trim(), "{} test failed", test_file_name);
     }
 }
