@@ -20,10 +20,11 @@ pub struct Executor{
     cursor:(usize,usize),
     parser: InstructionParser,
     quit:bool,
+    debug:bool,
 }
 
 impl Executor{
-    pub fn new(map:&str,input:&str) -> Executor{
+    pub fn new(map:&str,input:&str,debug:bool) -> Executor{
         let mut memories: Vec<Box<dyn Memory>> = Vec::new();
         for _ in 0..26{
             memories.push(Box::new(Stack::new()));
@@ -44,7 +45,8 @@ impl Executor{
             dir,
             cursor,
             parser,
-            quit:false
+            quit:false,
+            debug,
         }
     }
     pub fn get_output(&self) -> &str{
@@ -146,12 +148,16 @@ impl Executor{
         let instruction = self.map.get(self.cursor.0,self.cursor.1).unwrap_or_else(|e|panic!("{}",e));
 
         if let Some(instruction) = instruction{
-            //println!("{}",instruction);
+
+            if self.debug {println!("{}",instruction)};
+
             let instruction = self.parser.parse_instruction(instruction);
             if self.quit{
                 return;
             }
-            //println!("{:?}",&instruction);
+
+            if self.debug {println!("{:?}",&instruction)};
+
             self.run_instruction(instruction);
             
 
@@ -174,7 +180,7 @@ impl Executor{
                 self.flip_current_dir();
             }
         }
-        //self.get_current_memory().print();
+        if self.debug { self.get_current_memory().print()};
         self.run_movement(movement)
     }
 
