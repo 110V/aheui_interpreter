@@ -18,6 +18,7 @@ pub struct Executor{
     map: InstructionMap,
     dir:Direction,
     cursor:(usize,usize),
+    prev_cursor:(usize,usize),
     parser: InstructionParser,
     quit:bool,
     debug:bool,
@@ -44,6 +45,7 @@ impl Executor{
             map:InstructionMap::from_str(map),
             dir,
             cursor,
+            prev_cursor:cursor,
             parser,
             quit:false,
             debug,
@@ -59,8 +61,10 @@ impl Executor{
     }
 
     pub fn run_movement(&mut self, movement: Movement){
+        
         match movement{
             Movement::Move(direction,distance) => {
+                self.prev_cursor = self.cursor;
                 self.dir = direction;
                 for _ in 0..distance{
                     self.move_cursor();
@@ -68,25 +72,24 @@ impl Executor{
             },
             Movement::Bounce =>  {
                 self.flip_current_dir();
-                self.move_cursor();
+                let temp = self.cursor;
+                self.cursor = self.prev_cursor;
+                self.prev_cursor = temp;
             },
             Movement::VertLine =>  {
                 match &self.dir{
-                    Direction::Left => self.dir = Direction::Right,
-                    Direction::Right => self.dir = Direction::Left,
-                    _ => {}
+                    Direction::Left|Direction::Right =>  self.run_movement(Movement::Bounce),
+                    _ => {self.run_movement(Movement::Slip)}
                 }
-                self.move_cursor();
             },
             Movement::HorLine =>  {
                 match &self.dir{
-                    Direction::Up => self.dir = Direction::Down,
-                    Direction::Down => self.dir = Direction::Up,
-                    _ => {}
+                    Direction::Up|Direction::Down =>  self.run_movement(Movement::Bounce),
+                    _ => {self.run_movement(Movement::Slip)}
                 }
-                self.move_cursor();
             },
             Movement::Slip => {
+                self.prev_cursor = self.cursor;
                 self.move_cursor();
             }
         }
