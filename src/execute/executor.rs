@@ -277,10 +277,8 @@ impl Executor{
                 self.push_current_memory(b%a)
             },
             Command::Dup => {
-                let current_memory = self.get_current_memory();
-                let value = current_memory.pop().ok_or("no element")?;
-                self.push_current_memory(value);
-                self.push_current_memory(value);
+                self.check_elements_exist(1)?;
+                self.get_current_memory().dup();
             },
             Command::Swap => {
                 self.check_elements_exist(2)?;

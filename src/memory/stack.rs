@@ -35,5 +35,13 @@ impl Memory for Stack{
         let l = stack.len();
         stack.swap(l-1,l-2);
     }
-
+    fn dup(&mut self){
+        let stack = &mut self.stack;
+        if stack.len() < 1{
+            return;
+        }
+        let l = stack.len();
+        let data = stack[l-1];
+        stack.push(data);
+    }
 }
