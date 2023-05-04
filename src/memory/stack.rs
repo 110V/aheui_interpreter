@@ -1,5 +1,6 @@
 use super::Memory;
 
+
 pub struct Stack{
     stack: Vec<i32>
 }   
@@ -23,4 +24,8 @@ impl Memory for Stack{
     fn len(&self) -> usize{
         self.stack.len()
     }
+    fn print(&self){
+        println!("Stack: {:?}",self.stack);
+    }
+
 }

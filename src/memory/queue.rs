@@ -27,4 +27,7 @@ impl Memory for Queue{
     fn len(&self) -> usize{
         self.queue.len()
     }
+    fn print(&self){
+        println!("Queue: {:?}",self.queue);
+    }
 }
