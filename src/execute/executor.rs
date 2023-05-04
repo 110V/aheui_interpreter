@@ -124,11 +124,11 @@ impl Executor{
         self.output.push_str(&data.to_string());
     }
 
-    pub fn out_char(&mut self, data: i32)->CommandResult{
-        let c = std::char::from_u32(data as u32).ok_or("Invalid char")?;
-        self.output.push(c);
-        //println!("{}",c);
-        Ok(())
+    pub fn out_char(&mut self, data: i32){
+        let c = std::char::from_u32(data as u32);
+        if let Some(c) = c{
+            self.output.push(c);
+        };
     }
 
     pub fn set_dir(&mut self, dir:Direction){
@@ -151,7 +151,9 @@ impl Executor{
             if self.quit{
                 return;
             }
+            println!("{:?}",&instruction);
             self.run_instruction(instruction);
+            
 
         }
         else{
@@ -167,6 +169,7 @@ impl Executor{
         if let Err(_) = self.run_command(command){
             if let Movement::Move(dir,d) = movement{
                 movement = Movement::Move(dir.flip(),d);
+                println!("{:?}","갤럭시 z 플립");
             }
             else{
                 self.flip_current_dir();
@@ -182,7 +185,7 @@ impl Executor{
     }
     
 
-    pub fn get_input(&mut self,io_type:IOType)->CommandResult{
+    pub fn get_input(&mut self,io_type:IOType){
         
         match io_type{
             IOType::Number => {
@@ -194,7 +197,6 @@ impl Executor{
                 self.push_current_memory(value);
             },
         }
-        Ok(())
     }
 
     pub fn check_elements_exist(&mut self,count:usize)->CommandResult{
@@ -223,7 +225,7 @@ impl Executor{
             Command::Push(push_type) => {
                 match push_type {
                     PushType::Input(io_type) => {
-                        self.get_input(io_type)?;
+                        self.get_input(io_type);
                     },
                     PushType::Value(value) => {
                         self.push_current_memory(value);
@@ -237,10 +239,10 @@ impl Executor{
                     match io_type{
                         IOType::Number => {
                             self.out_number(value);
-                            
+                            // print!("{}",value);
                         },
                         IOType::Char => {
-                            self.out_char(value)?;
+                            self.out_char(value);
                         },
                     }
                 }
