@@ -67,3 +67,17 @@ fn test_from_str() {
     assert_eq!(map.get(2, 1), Ok(None));
     assert_eq!(map.get(3, 0), Err(String::from("Instruction Map Out of range: (3,0)")));
 }
+
+#[test]
+fn test_from_str2() {
+    let map_str = "방방다망함";
+    let map = InstructionMap::from_str(map_str);
+    assert_eq!(map.get_width(), 5);
+    assert_eq!(map.get_height(), 1);
+    assert_eq!(map.get(0, 0), Ok(Some('방')));
+    assert_eq!(map.get(1, 0), Ok(Some('방')));
+    assert_eq!(map.get(2, 0), Ok(Some('다')));
+    assert_eq!(map.get(3, 0), Ok(Some('망')));
+    assert_eq!(map.get(4, 0), Ok(Some('함')));
+
+}
