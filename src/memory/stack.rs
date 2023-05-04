@@ -27,5 +27,13 @@ impl Memory for Stack{
     fn print(&self){
         println!("Stack: {:?}",self.stack);
     }
+    fn swap(&mut self){
+        let stack = &mut self.stack;
+        if stack.len() < 2{
+            return;
+        }
+        let l = stack.len();
+        stack.swap(l-1,l-2);
+    }
 
 }

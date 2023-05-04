@@ -146,12 +146,12 @@ impl Executor{
         let instruction = self.map.get(self.cursor.0,self.cursor.1).unwrap_or_else(|e|panic!("{}",e));
 
         if let Some(instruction) = instruction{
-            println!("{}",instruction);
+            //println!("{}",instruction);
             let instruction = self.parser.parse_instruction(instruction);
             if self.quit{
                 return;
             }
-            println!("{:?}",&instruction);
+            //println!("{:?}",&instruction);
             self.run_instruction(instruction);
             
 
@@ -169,13 +169,12 @@ impl Executor{
         if let Err(_) = self.run_command(command){
             if let Movement::Move(dir,d) = movement{
                 movement = Movement::Move(dir.flip(),d);
-                println!("{:?}","갤럭시 z 플립");
             }
             else{
                 self.flip_current_dir();
             }
         }
-        self.get_current_memory().print();
+        //self.get_current_memory().print();
         self.run_movement(movement)
     }
 
@@ -275,9 +274,8 @@ impl Executor{
                 self.push_current_memory(value);
             },
             Command::Swap => {
-                let (a,b) = self.pop_pair()?;
-                self.push_current_memory(a);
-                self.push_current_memory(b);
+                self.check_elements_exist(2)?;
+                self.get_current_memory().swap();
             },
             Command::Set(data) => {
                 self.current_memory = data;
