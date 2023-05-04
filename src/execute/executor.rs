@@ -18,7 +18,7 @@ pub struct Executor{
     map: InstructionMap,
     dir:Direction,
     cursor:(usize,usize),
-    prev_cursor:(usize,usize),
+    distance:usize,
     parser: InstructionParser,
     quit:bool,
     debug:bool,
@@ -45,7 +45,7 @@ impl Executor{
             map:InstructionMap::from_str(map),
             dir,
             cursor,
-            prev_cursor:cursor,
+            distance:1,
             parser,
             quit:false,
             debug,
@@ -64,7 +64,7 @@ impl Executor{
         
         match movement{
             Movement::Move(direction,distance) => {
-                self.prev_cursor = self.cursor;
+                self.distance = distance;
                 self.dir = direction;
                 for _ in 0..distance{
                     self.move_cursor();
@@ -72,9 +72,7 @@ impl Executor{
             },
             Movement::Bounce =>  {
                 self.flip_current_dir();
-                let temp = self.cursor;
-                self.cursor = self.prev_cursor;
-                self.prev_cursor = temp;
+                self.run_movement(Movement::Move(self.dir.clone(),self.distance));
             },
             Movement::VertLine =>  {
                 match &self.dir{
@@ -89,7 +87,7 @@ impl Executor{
                 }
             },
             Movement::Slip => {
-                self.prev_cursor = self.cursor;
+                self.distance = 1;
                 self.move_cursor();
             }
         }
