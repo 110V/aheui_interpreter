@@ -50,7 +50,7 @@ impl Executor{
     pub fn get_output(&self) -> &str{
         &self.output
     }
-    pub fn excute(&mut self){
+    pub fn execute(&mut self){
         while !self.quit{
             self.run_current_instruction();
         }
