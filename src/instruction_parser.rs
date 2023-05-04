@@ -34,8 +34,8 @@ impl InstructionParser{
             'ㅕ' => Movement::Move(Direction::Left,2),
             'ㅛ' => Movement::Move(Direction::Up,2),
             'ㅠ' => Movement::Move(Direction::Down,2),
-            'ㅡ' => Movement::VertLine,
-            'ㅣ' => Movement::HorLine,
+            'ㅣ' => Movement::VertLine,
+            'ㅡ' => Movement::HorLine,
             'ㅢ' => Movement::Bounce,
             _ => Movement::Slip,
         }
