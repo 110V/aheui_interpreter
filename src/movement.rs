@@ -6,6 +6,20 @@ pub enum Direction{
     Right,
     None,
 }
+
+impl Direction {
+    pub fn flip(&self)->Self{
+        let dir = &self;
+        match dir{
+            Direction::Up => Direction::Down,
+            Direction::Down => Direction::Up,
+            Direction::Left => Direction::Right,
+            Direction::Right => Direction::Left,
+            Direction::None => Direction::None,
+        }
+    }
+}
+
 #[derive(PartialEq,Debug)]
 pub enum Movement{
     Move(Direction,usize),
