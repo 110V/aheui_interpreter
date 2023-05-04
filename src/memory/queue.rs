@@ -30,4 +30,19 @@ impl Memory for Queue{
     fn print(&self){
         println!("Queue: {:?}",self.queue);
     }
+    fn swap(&mut self){
+        let queue = &mut self.queue;
+        if queue.len() < 2{
+            return;
+        }
+        queue.swap(0,1);
+    }
+    fn dup(&mut self){
+        let queue = &mut self.queue;
+        if queue.len() < 1{
+            return;
+        }
+        let data = queue[0];
+        queue.insert(0,data);
+    }
 }
