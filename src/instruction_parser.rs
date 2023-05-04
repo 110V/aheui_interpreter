@@ -115,10 +115,10 @@ impl InstructionParser{
                 Command::Add
             }
             'ㄸ' => {
-                Command::Sub
+                Command::Mul
             }
             'ㅌ' => {
-                Command::Mul
+                Command::Sub
             }
             'ㄴ' => {
                 Command::Div
@@ -159,8 +159,12 @@ impl InstructionParser{
             }
             'ㅊ' => {
                 Command::If
+            },
+            'ㅎ' => {
+                Command::Quit
             }
-            _=>Command::None,
+            _ => Command::None,
+            
         }
     }
 
