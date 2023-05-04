@@ -5,6 +5,7 @@ use crate::instruction_parser::InstructionParser;
 use crate::memory::Memory;
 use crate::command::{Command, IOType, PushType, PopType};
 use crate::memory::{Queue,Stack};
+use crate::stdin::Stdin;
 
 use super::command_result::CommandResult;
 
@@ -13,7 +14,7 @@ pub struct Executor{
     current_memory: usize,
     memories: Vec<Box<dyn Memory>>,
     output: String,
-    input: Vec<char>,
+    input: Stdin,
     map: InstructionMap,
     dir:Direction,
     cursor:(usize,usize),
@@ -34,7 +35,7 @@ impl Executor{
         let dir = Direction::Down;
         let cursor = (0,0);
         let parser = InstructionParser::new();
-        let input = input.chars().rev().collect();
+        let input = Stdin::new(input);
         Executor{
             current_memory,
             memories,output:"".to_string(),
@@ -179,18 +180,18 @@ impl Executor{
         let current_memory = self.get_current_memory();
         current_memory.push(data);
     }
+    
 
     pub fn get_input(&mut self,io_type:IOType)->CommandResult{
-        let c:char = self.input.pop().ok_or("no input")?;
-
+        
         match io_type{
             IOType::Number => {
-                let num = c.to_digit(10).ok_or("not a number")?;
-                self.push_current_memory(num as i32);
+                let value = self.input.read_number();
+                self.push_current_memory(value);
             },
             IOType::Char => {
-                let num = c as i32;
-                self.push_current_memory(num);
+                let value = self.input.read_char();
+                self.push_current_memory(value);
             },
         }
         Ok(())
@@ -295,7 +296,7 @@ impl Executor{
             Command::If => {
                 let data = self.pop_one()?;
                 if data == 0{
-                    self.flip_current_dir();
+                    return Err("if fail".to_string())
                 }
             },
             Command::Quit => {

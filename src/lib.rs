@@ -6,3 +6,4 @@ pub mod memory;
 pub use command::Command;
 pub mod execute;
 pub mod instruction_map;
+pub mod stdin;
